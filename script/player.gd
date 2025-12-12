@@ -103,7 +103,7 @@ func _physics_process(delta: float) -> void:
 	
 	move_and_slide()
 	
-	if Input.is_action_just_pressed("click") and current_bullet == null and pode_atirar and not missao_concluida:
+	if Input.is_action_just_pressed("click") and current_bullet == null and pode_atirar:
 		var instance = bullet.instantiate()
 		instance.position = pos.global_position
 		instance.transform = pos.global_transform
