@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=3 uid="uid://dle2oa2n6taho"]
+
+[ext_resource type="Script" uid="uid://dksbvnw0ho2vs" path="res://script/pesca.gd" id="1_qnng1"]
+[ext_resource type="PackedScene" uid="uid://cepr04ciqg51x" path="res://models/boiadepesca.blend" id="2_krjjx"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qnng1"]
+
+[node name="CharacterBody3D" type="CharacterBody3D"]
+script = ExtResource("1_qnng1")
+
+[node name="boiadepesca" parent="." instance=ExtResource("2_krjjx")]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_qnng1")
+debug_color = Color(0.868724, 0.116479404, 0.80616593, 0.41960785)
+debug_fill = false

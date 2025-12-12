@@ -1,0 +1,26 @@
+[gd_scene load_steps=4 format=3 uid="uid://c446fqc5rw2x1"]
+
+[ext_resource type="Script" uid="uid://l1ecgp75tpyg" path="res://script/player.gd" id="1_g2els"]
+[ext_resource type="PackedScene" uid="uid://emjijowa6cmu" path="res://models/varadepescabase.blend" id="2_qhqgy"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_dqkch"]
+
+[node name="player" type="CharacterBody3D" groups=["player"]]
+script = ExtResource("1_g2els")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_dqkch")
+
+[node name="head" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.1265568, 0)
+
+[node name="vertical" type="Node3D" parent="head"]
+
+[node name="Camera3D" type="Camera3D" parent="head/vertical"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.0247726, 0)
+
+[node name="varadepescabase" parent="head/vertical/Camera3D" instance=ExtResource("2_qhqgy")]
+transform = Transform3D(-0.04117507, -0.023522522, -0.015852574, 0.0019978152, 0.02546897, -0.042980686, 0.02829527, -0.03602808, -0.02003386, 0.33675802, -0.31547827, -0.64077866)
+
+[node name="pos" type="Node3D" parent="head/vertical/Camera3D/varadepescabase"]
+transform = Transform3D(1, 0, -4.4703484e-08, 0, 1, 1.4901161e-07, -4.4703484e-08, 2.682209e-07, 1, 0.11639881, 46.015823, -0.18599749)

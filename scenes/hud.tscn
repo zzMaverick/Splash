@@ -1,0 +1,45 @@
+[gd_scene load_steps=4 format=3 uid="uid://cd4qgs7jjbpeu"]
+
+[ext_resource type="Script" uid="uid://djlegkll8hei3" path="res://script/hud.gd" id="1_5ysmq"]
+[ext_resource type="FontFile" uid="uid://dc10wm3rbvfh8" path="res://fonts/Poppins-SemiBold.ttf" id="1_oo0fn"]
+[ext_resource type="FontFile" uid="uid://7ma6jioeqtw8" path="res://fonts/Poppins-Bold.ttf" id="2_5ysmq"]
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 1.0
+offset_right = 1153.0
+offset_bottom = 648.0
+script = ExtResource("1_5ysmq")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+offset_right = 328.0
+offset_bottom = 243.0
+
+[node name="Missoes" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_oo0fn")
+theme_override_font_sizes/font_size = 32
+text = "Missões:"
+
+[node name="missao" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_5ysmq")
+theme_override_font_sizes/font_size = 20
+text = "Coletar 10 peixes"
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -328.0
+offset_bottom = 78.0
+grow_horizontal = 0
+
+[node name="Peixes" type="Label" parent="VBoxContainer2"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_oo0fn")
+theme_override_font_sizes/font_size = 32
+text = "Peixes: "

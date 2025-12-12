@@ -1,0 +1,28 @@
+[gd_scene load_steps=2 format=3 uid="uid://b8xjg8aapbxh7"]
+
+[ext_resource type="PackedScene" uid="uid://c4xdmjebdh70x" path="res://scenes/slot.tscn" id="1_q836x"]
+
+[node name="ColorRect" type="ColorRect"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="GridContainer" type="GridContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 54.0
+offset_right = 54.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.9217089, 1.0010622)
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 8
+
+[node name="slot" parent="GridContainer" instance=ExtResource("1_q836x")]
+layout_mode = 2

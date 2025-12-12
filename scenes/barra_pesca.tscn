@@ -1,0 +1,63 @@
+[gd_scene load_steps=4 format=3 uid="uid://cnlsg42j4f5uj"]
+
+[ext_resource type="Script" uid="uid://d3libmqcdg3ne" path="res://script/barra_pesca.gd" id="1_oi4pm"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nqh05"]
+bg_color = Color(0.1470235, 0.6724619, 0.6467742, 0.99607843)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+expand_margin_left = 1.0
+expand_margin_top = 1.0
+expand_margin_right = 1.0
+expand_margin_bottom = 1.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_oi4pm"]
+bg_color = Color(0, 1, 0.9411765, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+expand_margin_left = 1.0
+expand_margin_top = 1.0
+expand_margin_right = 1.0
+expand_margin_bottom = 1.0
+
+[node name="barraPesca" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1152.0
+offset_bottom = 648.0
+script = ExtResource("1_oi4pm")
+
+[node name="ProgressBar" type="ProgressBar" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -150.0
+offset_top = -50.0
+offset_right = 150.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/background = SubResource("StyleBoxFlat_nqh05")
+theme_override_styles/fill = SubResource("StyleBoxFlat_oi4pm")
+show_percentage = false
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -20.0
+offset_top = -81.0
+offset_right = 20.0
+offset_bottom = -58.0
+grow_horizontal = 2
+grow_vertical = 0
