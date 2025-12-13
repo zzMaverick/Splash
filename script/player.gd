@@ -144,6 +144,7 @@ func _on_minigame_concluido(peixe_capturado: bool):
 		if peixes_coletados >= peixes_necessarios:
 			missao_concluida = true
 			if hud:
+				hud.modulate = Color(1, 1, 0)  
 				hud.atualizar_missao("Missão concluída!")
 	
 	pode_atirar = true

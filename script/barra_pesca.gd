@@ -3,6 +3,7 @@ extends Control
 signal minigame_concluido(peixe_capturado: bool)
 
 @onready var barra = $ProgressBar
+@onready var label = $Label
 
 var valor: float = 20
 var maximo: float = 100.0
@@ -27,10 +28,16 @@ func _process(delta: float):
 		
 		if valor >= maximo:
 			esta_jogando = false
+			label.text = "O peixe foi capturado!"
+			label.modulate = Color(0, 1, 0)  
+			await get_tree().create_timer(2.0).timeout
 			terminar_minigame(true)
 		
 		if valor <= 0.0:
 			esta_jogando = false
+			label.text = "O peixe escapou!"
+			label.modulate = Color(1, 0, 0)  
+			await get_tree().create_timer(2.0).timeout
 			terminar_minigame(false)
 
 func terminar_minigame(ganhou: bool):
