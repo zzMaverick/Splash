@@ -17,13 +17,39 @@ var linha_mesh: MeshInstance3D = null
 @export var cor_linha := Color(0.4, 0.3, 0.2)
 @export var espessura_linha := 0.02
 
+@export_category("Peixes")
+@export var TIPO_PEIXE = [
+	{ "nome": "LAMBARI", "peso": 300, "raridade": "COMUM" },
+	{ "nome": "TILAPIA", "peso": 250, "raridade": "COMUM" },
+	{ "nome": "CARPA", "peso": 200, "raridade": "COMUM" },
+	{ "nome": "BAGRE", "peso": 120, "raridade": "INCOMUM" },
+	{ "nome": "TUCUNARE", "peso": 100, "raridade": "INCOMUM" },
+	{ "nome": "DOURADO", "peso": 60, "raridade": "RARO" },
+	{ "nome": "SALMAO_PRATEADO", "peso": 50, "raridade": "RARO" },
+	{ "nome": "PEIXE_LUA", "peso": 30, "raridade": "EPICO" },
+	{ "nome": "PEIXE_CRISTAL", "peso": 25, "raridade": "EPICO" },
+	{ "nome": "LEVIATA_DO_LAGO", "peso": 10, "raridade": "LENDARIO" }
+]
+
+
+@export_category("Sistema de inventario")
+@export var inventario = [];
+
+
 var can_ver := 0.0
 var peixes_coletados := 0
 var peixes_necessarios := 5
 var missao_concluida := false
 var hud: Node = null
 
+@onready var musica = "res://Songs/musica.mp3"
+@onready var efeitoAcerto = $SomAcerto
+@onready var efeitoErro = "res://Songs/erro.mp3"
+
 func _ready() -> void:
+	
+
+	
 	hud = get_tree().current_scene.get_node_or_null("hud")
 	
 	if hud:
@@ -50,7 +76,7 @@ func criar_linha_3d():
 	
 	print("Linha 3D criada com sucesso!")
 
-func _process(delta):
+func _process(_delta):
 	if current_bullet and not is_instance_valid(current_bullet):
 		current_bullet = null
 		pode_atirar = true
@@ -133,7 +159,6 @@ func iniciar_minigame():
 
 func _on_minigame_concluido(peixe_capturado: bool):
 	print("SINAL RECEBIDO! Peixe capturado:", peixe_capturado)
-	
 	deletar_boia()
 	
 	if peixe_capturado:
@@ -146,6 +171,7 @@ func _on_minigame_concluido(peixe_capturado: bool):
 			if hud:
 				hud.modulate = Color(1, 1, 0)  
 				hud.atualizar_missao("Missão concluída!")
+				efeitoAcerto.play()
 	
 	pode_atirar = true
 
@@ -154,7 +180,34 @@ func _atualizar_hud():
 		hud.atualizar_missao("Pesque %d peixes" % peixes_necessarios)
 		hud.atualizar_peixes(peixes_coletados)
 		print("HUD atualizado:", peixes_coletados, "peixes")
+		inventario.push_back(_pegar_peixe())
+		_exibir_inventario()
 
 func _exit_tree():
 	if linha_mesh:
 		linha_mesh.queue_free()
+		
+func _exibir_inventario():
+	for i in range(inventario.size()):
+		print(inventario[i])
+		
+
+func _soma_pesos_peixes():
+	var total = 0;
+	for i in range(TIPO_PEIXE.size()):
+		total += TIPO_PEIXE[i].peso
+	return total;
+	
+func _pegar_peixe():
+	var total = _soma_pesos_peixes()
+
+	var sorte = randi_range(1, total)
+	var acumulado = 0
+
+	for p in TIPO_PEIXE:
+		acumulado += p.peso
+		if sorte <= acumulado:
+			return p
+	
+	
+	

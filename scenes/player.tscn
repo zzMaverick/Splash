@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://c446fqc5rw2x1"]
+[gd_scene load_steps=5 format=3 uid="uid://c446fqc5rw2x1"]
 
 [ext_resource type="Script" uid="uid://l1ecgp75tpyg" path="res://script/player.gd" id="1_g2els"]
-[ext_resource type="PackedScene" uid="uid://c0b3hma100o13" path="res://models/varadepescabase.glb" id="3_qhqgy"]
+[ext_resource type="PackedScene" uid="uid://emjijowa6cmu" path="res://models/varadepescabase.blend" id="3_dqkch"]
+[ext_resource type="AudioStream" uid="uid://kn7r641k7l0h" path="res://Songs/acerto.wav" id="3_qlg0r"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_dqkch"]
 
@@ -19,8 +20,15 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.1265568, 0)
 [node name="Camera3D" type="Camera3D" parent="head/vertical"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.0247726, 0)
 
-[node name="varadepescabase" parent="head/vertical/Camera3D" instance=ExtResource("3_qhqgy")]
-transform = Transform3D(-0.04115911, -0.023548054, -0.01585613, 0.002002837, 0.02544845, -0.042992618, 0.028318126, -0.036025904, -0.020005455, 0.337, -0.315, -0.641)
+[node name="varadepescabase" parent="head/vertical/Camera3D" instance=ExtResource("3_dqkch")]
+transform = Transform3D(-0.04115911, -0.023548052, -0.015856128, 0.0020028388, 0.02544845, -0.042992618, 0.028318126, -0.036025904, -0.020005455, 0.337, -0.315, -0.641)
 
 [node name="pos" type="Node3D" parent="head/vertical/Camera3D/varadepescabase"]
-transform = Transform3D(0.9999999, -0.0004285872, -0.0003708452, 0.000428617, 0.99999964, 0.00049749017, 0.00037044287, -0.00049713254, 0.9999996, 0.10285187, 46.00999, -0.20085669)
+transform = Transform3D(0.9999998, -0.000428617, -0.0003708601, 0.000428617, 0.99999964, 0.0004975498, 0.00037048757, -0.00049713254, 0.99999964, 0.10284901, 46.00999, -0.20085716)
+
+[node name="SomAcerto" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("3_qlg0r")
+attenuation_model = 2
+
+[node name="SomErro" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("3_qlg0r")
