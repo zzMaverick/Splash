@@ -1,8 +1,11 @@
-[gd_scene load_steps=5 format=3 uid="uid://c446fqc5rw2x1"]
+[gd_scene load_steps=8 format=3 uid="uid://c446fqc5rw2x1"]
 
 [ext_resource type="Script" uid="uid://l1ecgp75tpyg" path="res://script/player.gd" id="1_g2els"]
 [ext_resource type="PackedScene" uid="uid://emjijowa6cmu" path="res://models/varadepescabase.blend" id="3_dqkch"]
 [ext_resource type="AudioStream" uid="uid://kn7r641k7l0h" path="res://Songs/acerto.wav" id="3_qlg0r"]
+[ext_resource type="Script" uid="uid://cvb2dof4hrvsx" path="res://script/Inventory/inventory.gd" id="4_tuyoq"]
+[ext_resource type="Script" uid="uid://banduc7ysqh4w" path="res://script/items/item_data.gd" id="5_fjrip"]
+[ext_resource type="Resource" uid="uid://x5nc584ghmwi" path="res://itens/weapon/VaraBasica.tres" id="6_smehm"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_dqkch"]
 
@@ -32,3 +35,9 @@ attenuation_model = 2
 
 [node name="SomErro" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource("3_qlg0r")
+
+[node name="inventory" type="Node" parent="."]
+script = ExtResource("4_tuyoq")
+start_items = Dictionary[ExtResource("5_fjrip"), int]({
+ExtResource("6_smehm"): 1
+})

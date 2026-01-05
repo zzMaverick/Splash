@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://bvymfduyh2w77"]
+[gd_scene load_steps=8 format=3 uid="uid://bvymfduyh2w77"]
 
 [ext_resource type="PackedScene" uid="uid://c446fqc5rw2x1" path="res://scenes/player.tscn" id="1_0wfyh"]
 [ext_resource type="PackedScene" uid="uid://qwhkyf5634no" path="res://scenes/mapa.tscn" id="2_sugp2"]
 [ext_resource type="PackedScene" uid="uid://cd4qgs7jjbpeu" path="res://scenes/hud.tscn" id="3_sugp2"]
+[ext_resource type="PackedScene" uid="uid://b8xjg8aapbxh7" path="res://scenes/inventario.tscn" id="4_jyhfs"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sugp2"]
 sky_top_color = Color(0.10423333, 0.45540166, 0.7503172, 1)
@@ -35,3 +36,5 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.012392, -21.786602)
 [node name="Mapa" parent="." instance=ExtResource("2_sugp2")]
 
 [node name="hud" parent="." instance=ExtResource("3_sugp2")]
+
+[node name="inventario" parent="." instance=ExtResource("4_jyhfs")]

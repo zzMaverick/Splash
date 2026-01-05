@@ -1,28 +1,49 @@
-[gd_scene load_steps=2 format=3 uid="uid://b8xjg8aapbxh7"]
+[gd_scene load_steps=3 format=3 uid="uid://b8xjg8aapbxh7"]
 
-[ext_resource type="PackedScene" uid="uid://c4xdmjebdh70x" path="res://scenes/slot.tscn" id="1_q836x"]
+[ext_resource type="Texture2D" uid="uid://wtomtht6c4pk" path="res://models/varadepescabase_Material Base Color.png" id="1_hswsb"]
+[ext_resource type="Script" uid="uid://cpo1s51s01qnh" path="res://script/Inventory/loadInventority.gd" id="2_mu20r"]
 
-[node name="ColorRect" type="ColorRect"]
+[node name="Inventario" type="Control"]
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 1)
 
-[node name="GridContainer" type="GridContainer" parent="."]
+[node name="TextureRect" type="TextureRect" parent="."]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 54.0
-offset_right = 54.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -192.5
+offset_right = 300.0
+offset_bottom = 192.5
 grow_horizontal = 2
 grow_vertical = 2
-scale = Vector2(0.9217089, 1.0010622)
+texture = ExtResource("1_hswsb")
+expand_mode = 1
+
+[node name="GridContainer" type="GridContainer" parent="TextureRect"]
+custom_minimum_size = Vector2(500, 250)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -100.0
+offset_right = 200.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
-columns = 8
-
-[node name="slot" parent="GridContainer" instance=ExtResource("1_q836x")]
-layout_mode = 2
+columns = 7
+script = ExtResource("2_mu20r")

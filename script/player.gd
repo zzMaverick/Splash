@@ -35,6 +35,7 @@ var linha_mesh: MeshInstance3D = null
 @export_category("Sistema de inventario")
 @export var inventario = [];
 
+@onready var inventariohud = $"../Control"
 
 var can_ver := 0.0
 var peixes_coletados := 0
@@ -109,6 +110,10 @@ func _input(event: InputEvent) -> void:
 	
 	if Input.is_action_just_pressed("ui_cancel"):
 		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	
+	if Input.is_action_just_pressed("OpenInventory"):
+		inventariohud.visible = false
+		
 
 func _physics_process(delta: float) -> void:
 	if not is_on_floor():
@@ -208,6 +213,3 @@ func _pegar_peixe():
 		acumulado += p.peso
 		if sorte <= acumulado:
 			return p
-	
-	
-	

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3 uid="uid://x5nc584ghmwi"]
+
+[ext_resource type="Script" uid="uid://banduc7ysqh4w" path="res://script/items/item_data.gd" id="1_kopf6"]
+[ext_resource type="Texture2D" uid="uid://tpkhu3q51pak" path="res://images/varas/varabasica.png" id="1_p4hab"]
+
+[resource]
+script = ExtResource("1_kopf6")
+display_name = "Vara Basica"
+description = "Vara de pesca basica"
+icon = ExtResource("1_p4hab")
+metadata/_custom_type_script = "uid://banduc7ysqh4w"
