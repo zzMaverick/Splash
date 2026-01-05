@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://b8xjg8aapbxh7"]
 
 [ext_resource type="Texture2D" uid="uid://wtomtht6c4pk" path="res://models/varadepescabase_Material Base Color.png" id="1_hswsb"]
-[ext_resource type="Script" uid="uid://cpo1s51s01qnh" path="res://script/Inventory/loadInventority.gd" id="2_mu20r"]
+[ext_resource type="Script" uid="uid://cm2vl5qud0df0" path="res://script/Inventory/inventory_grid.gd" id="2_mu20r"]
 
 [node name="Inventario" type="Control"]
 layout_mode = 3

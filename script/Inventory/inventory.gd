@@ -1,10 +1,12 @@
+class_name Inventory
 extends Node
+
 class ItemSlot:
 	var item : ItemData
 	var quantity : int
-	
-signal UpdatedInventory
-signal UpdatedSlot(slot : ItemSlot)
+
+signal updated_inventory
+signal updated_slot(slot : ItemSlot)
 
 var item_slots : Array [ItemSlot]
 
@@ -23,7 +25,7 @@ func _ready() -> void:
 func add_item(item : ItemData) -> bool:
 	var slot: ItemSlot = get_item_slot(item)
 	if slot and slot.quantity < item.max_stack_item_size:
-		slot.quantity +=1;
+		slot.quantity += 1
 	else:
 		slot = get_empty_item_slot()
 		
@@ -32,18 +34,17 @@ func add_item(item : ItemData) -> bool:
 			
 		slot.item = item
 		slot.quantity += 1
-	UpdatedInventory.emit()
-	UpdatedSlot.emit(slot)
+	updated_inventory.emit()
+	updated_slot.emit(slot)
 	
 	return true 
 	
 func remove_item(item : ItemData) :
-	if not has_item(item):
-		return 
-		
-	var slot : ItemSlot = get_item_slot(item)
-	remove_item_for_slot(slot)
-	
+	for slot in item_slots:
+		if slot.item == item:
+			remove_item_for_slot(slot)
+			return
+
 func remove_item_for_slot(slot : ItemSlot):
 	if not slot.item:
 		return 
@@ -52,13 +53,13 @@ func remove_item_for_slot(slot : ItemSlot):
 	else:
 		slot.quantity -= 1
 	
-	UpdatedInventory.emit()
-	UpdatedSlot.emit(slot)
+	updated_inventory.emit()
+	updated_slot.emit(slot)
 	
-func get_item_slot(item: ItemData):
+func get_item_slot(item: ItemData) -> ItemSlot:
 	for slot in item_slots:
-		if slot.item == item:
-			return item
+		if slot.item == item and slot.quantity < item.max_stack_item_size:
+			return slot
 	
 	return null
 	

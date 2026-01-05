@@ -32,12 +32,18 @@ func _physics_process(delta):
 func iniciar_minigame():
 	ja_iniciou_minigame = true
 	
-	var player = get_tree().get_first_node_in_group("player")
+	var player = _get_player()
 	if player:
 		player.iniciar_minigame()
 
 func notificar_player_boia_deletada():
-	var player = get_tree().get_first_node_in_group("player")
+	var player = _get_player()
 	if player:
-		player.current_bullet = null
-		player.pode_atirar = true
+		if player.has_method("on_boia_deleted"):
+			player.on_boia_deleted()
+
+func _get_player():
+	var player = get_tree().get_first_node_in_group("Player")
+	if not player:
+		player = get_tree().get_first_node_in_group("player")
+	return player

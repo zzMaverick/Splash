@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="BaitItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://script/items/item_data_bait.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://images/peixes/lambari.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_script")
+attraction_bonus = 1.2
+name = "Minhoca"
+weight = 0.1
+raridade = "Comum"
+display_name = "Minhoca"
+description = "Uma isca comum para peixes pequenos."
+max_stack_item_size = 50
+icon = ExtResource("2_icon")

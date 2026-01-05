@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ConsumablesItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://d12un71x5jnv8" path="res://script/items/item_data_cosumables.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+display_name = "LEVIATA_DO_LAGO"
+description = "Peixe LEVIATA_DO_LAGO de raridade LENDARIO"
+max_stack_item_size = 99
+name = "LEVIATA_DO_LAGO"
+weight = 10.0
+raridade = "LENDARIO"

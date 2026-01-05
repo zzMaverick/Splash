@@ -1,5 +1,13 @@
 extends Control
 
+func set_slot_data(item: ItemData, quantity: int) -> void:
+	if item:
+		$Name.text = item.display_name
+		$Amount.text = str(quantity)
+		$Item.texture = item.icon
+	else:
+		set_empty_slot()
+
 func _get_drag_data(at_position: Vector2):
 	var data := {
 		"Name": $Name.text,

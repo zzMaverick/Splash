@@ -1,215 +1,141 @@
 extends CharacterBody3D
 
-const SPEED = 5.0
-const JUMP_VELOCITY = 4.5
-var bullet = load("res://scenes/boia.tscn")
-@onready var pos = $head/vertical/Camera3D/varadepescabase/pos
-var current_bullet: Node = null
-var linha_mesh: MeshInstance3D = null
+signal fish_caught(current_amount: int, target_amount: int)
+signal mission_completed
+signal mission_updated(text: String)
 
-@export_category("Settings Mouse")
-@export var mouse_sensitivity := 0.2
-@export var camera_limit_down := -80
-@export var camera_limit_up := 60
+var movement_component: MovementComponent
+var camera_component: CameraComponent
+var fishing_component: FishingComponent
 
-@export_category("Sistema de pesca")
-@export var pode_atirar := true
-@export var cor_linha := Color(0.4, 0.3, 0.2)
-@export var espessura_linha := 0.02
+@onready var head_vertical = $head/vertical
+@onready var casting_pos = $head/vertical/Camera3D/varadepescabase/pos
+@onready var sound_acerto = $SomAcerto
 
-@export_category("Peixes")
-@export var TIPO_PEIXE = [
-	{ "nome": "LAMBARI", "peso": 300, "raridade": "COMUM" },
-	{ "nome": "TILAPIA", "peso": 250, "raridade": "COMUM" },
-	{ "nome": "CARPA", "peso": 200, "raridade": "COMUM" },
-	{ "nome": "BAGRE", "peso": 120, "raridade": "INCOMUM" },
-	{ "nome": "TUCUNARE", "peso": 100, "raridade": "INCOMUM" },
-	{ "nome": "DOURADO", "peso": 60, "raridade": "RARO" },
-	{ "nome": "SALMAO_PRATEADO", "peso": 50, "raridade": "RARO" },
-	{ "nome": "PEIXE_LUA", "peso": 30, "raridade": "EPICO" },
-	{ "nome": "PEIXE_CRISTAL", "peso": 25, "raridade": "EPICO" },
-	{ "nome": "LEVIATA_DO_LAGO", "peso": 10, "raridade": "LENDARIO" }
-]
-
-
-@export_category("Sistema de inventario")
-@export var inventario = [];
-
-@onready var inventariohud = $"../Control"
-
-var can_ver := 0.0
-var peixes_coletados := 0
-var peixes_necessarios := 5
-var missao_concluida := false
-var hud: Node = null
-
-@onready var musica = "res://Songs/musica.mp3"
-@onready var efeitoAcerto = $SomAcerto
-@onready var efeitoErro = "res://Songs/erro.mp3"
+@export var inventariohud: Control
+var inventory: Inventory
 
 func _ready() -> void:
+	add_to_group("Player")
 	
-
+	_setup_inventory()
 	
-	hud = get_tree().current_scene.get_node_or_null("hud")
+	_setup_components()
 	
-	if hud:
-		print("HUD encontrado com sucesso!")
-	else:
-		print("ERRO: HUD não encontrado!")
+	_setup_ui()
 	
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-	call_deferred("_atualizar_hud")
-	call_deferred("criar_linha_3d")
+	call_deferred("_notificar_estado_inicial")
 
-func criar_linha_3d():
-	linha_mesh = MeshInstance3D.new()
-	linha_mesh.mesh = ImmediateMesh.new()
-	
-	var material = StandardMaterial3D.new()
-	material.albedo_color = cor_linha
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material.cull_mode = BaseMaterial3D.CULL_DISABLED
-	linha_mesh.material_override = material
-	
-	get_tree().current_scene.call_deferred("add_child", linha_mesh)
-	linha_mesh.visible = false
-	
-	print("Linha 3D criada com sucesso!")
+func _setup_inventory():
+	inventory = Inventory.new()
+	inventory.size = 20
+	add_child(inventory)
 
-func _process(_delta):
-	if current_bullet and not is_instance_valid(current_bullet):
-		current_bullet = null
-		pode_atirar = true
+func _setup_components():
+	movement_component = MovementComponent.new()
+	movement_component.setup(self)
+	add_child(movement_component)
 	
-	if current_bullet and linha_mesh and is_instance_valid(current_bullet):
-		atualizar_linha_3d()
-	elif linha_mesh:
-		linha_mesh.visible = false
+	camera_component = CameraComponent.new()
+	camera_component.setup(self, head_vertical)
+	add_child(camera_component)
+	
+	fishing_component = FishingComponent.new()
+	fishing_component.projectile_scene = load("res://scenes/boia.tscn")
+	
+	var fish_list = _load_fish_resources()
+	
+	fishing_component.setup(self, inventory, casting_pos, fish_list)
+	fishing_component.set_sounds(sound_acerto)
+	add_child(fishing_component)
+	
+	fishing_component.connect("mission_updated", func(text): mission_updated.emit(text))
+	fishing_component.connect("mission_completed", func(): mission_completed.emit())
+	fishing_component.connect("fish_caught", func(curr, target): fish_caught.emit(curr, target))
 
-func atualizar_linha_3d():
-	var im = linha_mesh.mesh as ImmediateMesh
-	im.clear_surfaces()
+func _setup_ui():
+	if not inventariohud:
+		inventariohud = get_parent().get_node_or_null("inventario")
+		if not inventariohud:
+			inventariohud = get_tree().current_scene.get_node_or_null("inventario")
+		if not inventariohud:
+			inventariohud = get_tree().current_scene.get_node_or_null("Inventario")
+
+	if inventariohud:
+		print("Inventário HUD encontrado: ", inventariohud.name)
+		inventariohud.visible = false
+	else:
+		print("AVISO CRÍTICO: Nó 'inventario' não encontrado na cena!")
+
+func _load_fish_resources() -> Array[ConsumablesItemData]:
+	var fish_list: Array[ConsumablesItemData] = []
+	var path = "res://itens/fish/"
+	var dir = DirAccess.open(path)
+	if dir:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if not dir.current_is_dir() and (file_name.ends_with(".tres") or file_name.ends_with(".remap")):
+				var final_name = file_name.replace(".remap", "")
+				var resource = load(path + "/" + final_name)
+				if resource is ConsumablesItemData:
+					fish_list.append(resource)
+			file_name = dir.get_next()
+		print("Peixes carregados: ", fish_list.size())
+	else:
+		print("Erro ao abrir diretório de peixes")
+	return fish_list
+
+func _notificar_estado_inicial():
+	mission_updated.emit("Pesque %d peixes" % fishing_component.fish_needed)
+	fish_caught.emit(fishing_component.fish_collected, fishing_component.fish_needed)
+
+func _process(delta: float) -> void:
+	if Input.is_action_just_pressed("OpenInventory"):
+		toggle_inventory()
 	
-	var inicio = pos.global_position
-	var fim = current_bullet.global_position
-	
-	im.surface_begin(Mesh.PRIMITIVE_LINES)
-	im.surface_add_vertex(inicio)
-	im.surface_add_vertex(fim)
-	im.surface_end()
-	
-	linha_mesh.visible = true
+	if fishing_component:
+		fishing_component.handle_process(delta)
+		fishing_component.handle_input()
+
+func _physics_process(delta: float) -> void:
+	if movement_component:
+		movement_component.handle_physics(delta)
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion:
-		rotate_y(deg_to_rad(-event.relative.x * mouse_sensitivity))
-		can_ver -= event.relative.y * mouse_sensitivity
-		can_ver = clamp(can_ver, camera_limit_down, camera_limit_up)
-		$head/vertical.rotation_degrees.x = can_ver
+	if inventariohud and inventariohud.visible:
+		if Input.is_action_just_pressed("ui_cancel"):
+			toggle_inventory()
+		return
 	
 	if Input.is_action_just_pressed("ui_cancel"):
 		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	
-	if Input.is_action_just_pressed("OpenInventory"):
-		inventariohud.visible = false
+	if camera_component:
+		camera_component.handle_input(event)
+
+func toggle_inventory():
+	if inventariohud:
+		inventariohud.visible = !inventariohud.visible
 		
-
-func _physics_process(delta: float) -> void:
-	if not is_on_floor():
-		velocity += get_gravity() * delta
-	
-	if Input.is_action_just_pressed("ui_accept") and is_on_floor():
-		velocity.y = JUMP_VELOCITY
-	
-	var input_dir := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
-	var direction := (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
-	
-	if direction:
-		velocity.x = direction.x * SPEED
-		velocity.z = direction.z * SPEED
+		if inventariohud.visible:
+			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+			if fishing_component: fishing_component.can_shoot = false
+		else:
+			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+			if fishing_component: fishing_component.can_shoot = true
 	else:
-		velocity.x = move_toward(velocity.x, 0, SPEED)
-		velocity.z = move_toward(velocity.z, 0, SPEED)
-	
-	move_and_slide()
-	
-	if Input.is_action_just_pressed("click") and current_bullet == null and pode_atirar:
-		var instance = bullet.instantiate()
-		instance.position = pos.global_position
-		instance.transform = pos.global_transform
-		get_parent().add_child(instance)
-		current_bullet = instance
-
-func deletar_boia():
-	if current_bullet and is_instance_valid(current_bullet):
-		current_bullet.queue_free()
-	current_bullet = null
-	if linha_mesh:
-		linha_mesh.visible = false
+		print("Inventário HUD não configurado!")
 
 func iniciar_minigame():
-	print("INICIANDO MINIGAME...")
-	pode_atirar = false
-	
-	if linha_mesh:
-		linha_mesh.visible = false
-	
-	var minigame = load("res://scenes/barra_pesca.tscn").instantiate()
-	get_tree().current_scene.add_child(minigame)
-	
-	var connection_result = minigame.connect("minigame_concluido", Callable(self, "_on_minigame_concluido"))
-	if connection_result == OK:
-		print("Sinal conectado com sucesso!")
+	if fishing_component:
+		fishing_component.start_minigame()
 
-func _on_minigame_concluido(peixe_capturado: bool):
-	print("SINAL RECEBIDO! Peixe capturado:", peixe_capturado)
-	deletar_boia()
-	
-	if peixe_capturado:
-		peixes_coletados += 1
-		print("Peixe capturado! Total:", peixes_coletados)
-		_atualizar_hud()
-		
-		if peixes_coletados >= peixes_necessarios:
-			missao_concluida = true
-			if hud:
-				hud.modulate = Color(1, 1, 0)  
-				hud.atualizar_missao("Missão concluída!")
-				efeitoAcerto.play()
-	
-	pode_atirar = true
-
-func _atualizar_hud():
-	if hud:
-		hud.atualizar_missao("Pesque %d peixes" % peixes_necessarios)
-		hud.atualizar_peixes(peixes_coletados)
-		print("HUD atualizado:", peixes_coletados, "peixes")
-		inventario.push_back(_pegar_peixe())
-		_exibir_inventario()
+func on_boia_deleted():
+	if fishing_component:
+		fishing_component.notify_projectile_lost()
 
 func _exit_tree():
-	if linha_mesh:
-		linha_mesh.queue_free()
-		
-func _exibir_inventario():
-	for i in range(inventario.size()):
-		print(inventario[i])
-		
-
-func _soma_pesos_peixes():
-	var total = 0;
-	for i in range(TIPO_PEIXE.size()):
-		total += TIPO_PEIXE[i].peso
-	return total;
-	
-func _pegar_peixe():
-	var total = _soma_pesos_peixes()
-
-	var sorte = randi_range(1, total)
-	var acumulado = 0
-
-	for p in TIPO_PEIXE:
-		acumulado += p.peso
-		if sorte <= acumulado:
-			return p
+	if fishing_component:
+		fishing_component.cleanup()
