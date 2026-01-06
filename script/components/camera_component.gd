@@ -9,14 +9,14 @@ var vertical_pivot: Node3D
 var character_body: CharacterBody3D
 var current_rotation_x := 0.0
 
-func setup(body: CharacterBody3D, pivot: Node3D):
+func setup(body: CharacterBody3D, pivot: Node3D) -> void:
 	character_body = body
 	vertical_pivot = pivot
 
-func handle_input(event: InputEvent):
+func handle_input(event: InputEvent) -> void:
 	if not character_body or not vertical_pivot:
 		return
-		
+	
 	if event is InputEventMouseMotion:
 		character_body.rotate_y(deg_to_rad(-event.relative.x * mouse_sensitivity))
 		current_rotation_x -= event.relative.y * mouse_sensitivity

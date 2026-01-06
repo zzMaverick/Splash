@@ -18,29 +18,34 @@ var inventory: Inventory
 func _ready() -> void:
 	add_to_group("Player")
 	
-	_setup_inventory()
-	
-	_setup_components()
-	
-	_setup_ui()
+	_initialize_systems()
+	_load_game_state()
 	
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-	call_deferred("_notificar_estado_inicial")
 
-func _setup_inventory():
+func _initialize_systems() -> void:
+	# Inventário
 	inventory = Inventory.new()
 	inventory.size = 20
 	add_child(inventory)
+	
+	# Componentes
+	_setup_movement()
+	_setup_camera()
+	_setup_fishing()
+	_setup_ui()
 
-func _setup_components():
+func _setup_movement() -> void:
 	movement_component = MovementComponent.new()
 	movement_component.setup(self)
 	add_child(movement_component)
-	
+
+func _setup_camera() -> void:
 	camera_component = CameraComponent.new()
 	camera_component.setup(self, head_vertical)
 	add_child(camera_component)
-	
+
+func _setup_fishing() -> void:
 	fishing_component = FishingComponent.new()
 	fishing_component.projectile_scene = load("res://scenes/boia.tscn")
 	
@@ -50,28 +55,29 @@ func _setup_components():
 	fishing_component.set_sounds(sound_acerto)
 	add_child(fishing_component)
 	
-	fishing_component.connect("mission_updated", func(text): mission_updated.emit(text))
-	fishing_component.connect("mission_completed", func(): mission_completed.emit())
-	fishing_component.connect("fish_caught", func(curr, target): fish_caught.emit(curr, target))
+	# Conectar sinais
+	fishing_component.mission_updated.connect(mission_updated.emit)
+	fishing_component.mission_completed.connect(mission_completed.emit)
+	fishing_component.fish_caught.connect(fish_caught.emit)
 
-func _setup_ui():
+func _setup_ui() -> void:
+	# Tentar encontrar o inventário HUD
+	inventariohud = get_parent().get_node_or_null("inventario")
 	if not inventariohud:
-		inventariohud = get_parent().get_node_or_null("inventario")
-		if not inventariohud:
-			inventariohud = get_tree().current_scene.get_node_or_null("inventario")
-		if not inventariohud:
-			inventariohud = get_tree().current_scene.get_node_or_null("Inventario")
+		inventariohud = get_tree().current_scene.get_node_or_null("inventario")
+	if not inventariohud:
+		inventariohud = get_tree().current_scene.get_node_or_null("Inventario")
 
 	if inventariohud:
-		print("Inventário HUD encontrado: ", inventariohud.name)
 		inventariohud.visible = false
 	else:
-		print("AVISO CRÍTICO: Nó 'inventario' não encontrado na cena!")
+		print("AVISO: Inventário HUD não encontrado!")
 
 func _load_fish_resources() -> Array[ConsumablesItemData]:
 	var fish_list: Array[ConsumablesItemData] = []
 	var path = "res://itens/fish/"
 	var dir = DirAccess.open(path)
+	
 	if dir:
 		dir.list_dir_begin()
 		var file_name = dir.get_next()
@@ -82,12 +88,16 @@ func _load_fish_resources() -> Array[ConsumablesItemData]:
 				if resource is ConsumablesItemData:
 					fish_list.append(resource)
 			file_name = dir.get_next()
-		print("Peixes carregados: ", fish_list.size())
-	else:
-		print("Erro ao abrir diretório de peixes")
+	
 	return fish_list
 
-func _notificar_estado_inicial():
+func _load_game_state() -> void:
+	var saved_data = SaveManager.load_game()
+	if fishing_component:
+		fishing_component.load_game_state(saved_data)
+	
+	# Notificar estado inicial
+	await get_tree().process_frame
 	mission_updated.emit("Pesque %d peixes" % fishing_component.fish_needed)
 	fish_caught.emit(fishing_component.fish_collected, fishing_component.fish_needed)
 
@@ -115,27 +125,34 @@ func _input(event: InputEvent) -> void:
 	if camera_component:
 		camera_component.handle_input(event)
 
-func toggle_inventory():
-	if inventariohud:
-		inventariohud.visible = !inventariohud.visible
-		
-		if inventariohud.visible:
-			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-			if fishing_component: fishing_component.can_shoot = false
-		else:
-			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-			if fishing_component: fishing_component.can_shoot = true
+func toggle_inventory() -> void:
+	if not inventariohud:
+		return
+	
+	inventariohud.visible = !inventariohud.visible
+	
+	if inventariohud.visible:
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		if fishing_component:
+			fishing_component.can_shoot = false
 	else:
-		print("Inventário HUD não configurado!")
+		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+		if fishing_component:
+			fishing_component.can_shoot = true
 
-func iniciar_minigame():
+func iniciar_minigame() -> void:
 	if fishing_component:
 		fishing_component.start_minigame()
 
-func on_boia_deleted():
+func on_boia_deleted() -> void:
 	if fishing_component:
 		fishing_component.notify_projectile_lost()
 
-func _exit_tree():
+func save_game() -> void:
+	if fishing_component:
+		fishing_component._save_game_state()
+
+func _exit_tree() -> void:
+	save_game()
 	if fishing_component:
 		fishing_component.cleanup()

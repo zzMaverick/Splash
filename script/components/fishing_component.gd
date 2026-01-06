@@ -24,7 +24,6 @@ var equipped_rod: WeaponItemData
 var current_bait: BaitItemData
 
 var sound_success: AudioStreamPlayer3D
-var sound_error_path := "res://Songs/erro.mp3"
 
 func setup(body: CharacterBody3D, inv: Inventory, cast_pos: Node3D, fish_list: Array[ConsumablesItemData]):
 	player = body
@@ -67,7 +66,6 @@ func try_cast_rod():
 		print("Usando isca: ", bait.display_name)
 	else:
 		current_bait = null
-		print("Pescando sem isca (ou isca padrão)")
 
 	cast_rod()
 
@@ -83,7 +81,6 @@ func cast_rod():
 	
 	if equipped_rod:
 		equipped_rod.reduce_durability(1)
-		print("Durabilidade da vara: ", equipped_rod.current_durability)
 
 func notify_projectile_lost():
 	current_projectile = null
@@ -99,7 +96,6 @@ func delete_bobber():
 		line_mesh.visible = false
 
 func start_minigame():
-	print("INICIANDO MINIGAME...")
 	can_shoot = false
 	
 	if line_mesh:
@@ -130,7 +126,6 @@ func _handle_catch_success():
 	var fish = _roll_for_fish()
 	if fish:
 		inventory.add_item(fish)
-		print("Peixe capturado: ", fish.display_name)
 	
 	mission_updated.emit("Pesque %d peixes" % fish_needed)
 	fish_caught.emit(fish_collected, fish_needed)
@@ -141,6 +136,7 @@ func _handle_catch_success():
 		mission_completed.emit()
 		if sound_success:
 			sound_success.play()
+		_save_game_state()
 
 func _handle_catch_fail():
 	if current_bait:
@@ -174,15 +170,42 @@ func create_line_3d():
 	material.albedo_color = line_color
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	material.line_width = 3.0
+	material.no_depth_test = false
 	line_mesh.material_override = material
 	
 	player.get_tree().current_scene.call_deferred("add_child", line_mesh)
 	line_mesh.visible = false
 
 func update_line_3d():
+	if not line_mesh or not is_instance_valid(line_mesh):
+		return
+		
 	var im = line_mesh.mesh as ImmediateMesh
 	im.clear_surfaces()
+	
+	line_mesh.visible = true
+	
 	im.surface_begin(Mesh.PRIMITIVE_LINES)
 	im.surface_add_vertex(casting_position_node.global_position)
 	im.surface_add_vertex(current_projectile.global_position)
 	im.surface_end()
+
+func _save_game_state():
+	var game_data = SaveManager.GameData.new()
+	game_data.fish_collected = fish_collected
+	game_data.rod_durability = equipped_rod.current_durability
+	game_data.inventory_items = inventory.to_dict()
+	
+	SaveManager.save_game(game_data)
+
+func load_game_state(game_data: SaveManager.GameData):
+	fish_collected = game_data.fish_collected
+	equipped_rod.current_durability = game_data.rod_durability
+	inventory.from_dict(game_data.inventory_items)
+	
+	fish_caught.emit(fish_collected, fish_needed)
+	mission_updated.emit("Pesque %d peixes" % (fish_needed - fish_collected))
+
+func cleanup():
+	delete_bobber()

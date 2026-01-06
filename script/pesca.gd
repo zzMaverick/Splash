@@ -1,49 +1,51 @@
+class_name FishingBobber
 extends CharacterBody3D
 
-var speed = 120
-var ja_iniciou_minigame = false
-var tempo_vida = 5.0
-var tempo_decorrido = 0.0
+const SPEED = 120
+const LIFE_TIME = 5.0
 
-func _ready():
-	add_to_group("boia")
+var has_started_minigame := false
+var elapsed_time := 0.0
 
-func _physics_process(delta):
-	if not ja_iniciou_minigame:
-		tempo_decorrido += delta
-		
-		if tempo_decorrido >= tempo_vida:
-			notificar_player_boia_deletada()
-			queue_free()
-			return
-		
-		var motion = transform.basis.z * speed * delta
-		var collision = move_and_collide(motion)
-		
-		if collision:
-			var obj = collision.get_collider()
-			
-			if obj.name == "Agua":
-				iniciar_minigame()
-			else:
-				notificar_player_boia_deletada()
-				queue_free()
+func _ready() -> void:
+	add_to_group("bobber")
 
-func iniciar_minigame():
-	ja_iniciou_minigame = true
+func _physics_process(delta: float) -> void:
+	if has_started_minigame:
+		return
 	
+	elapsed_time += delta
+	
+	# Verificar timeout
+	if elapsed_time >= LIFE_TIME:
+		_notify_player_bobber_deleted()
+		queue_free()
+		return
+	
+	# Movimento
+	var motion = transform.basis.z * SPEED * delta
+	var collision = move_and_collide(motion)
+	
+	if collision:
+		var collider = collision.get_collider()
+		
+		if collider.name == "Agua":
+			_start_minigame()
+		else:
+			_notify_player_bobber_deleted()
+			queue_free()
+
+func _start_minigame() -> void:
+	has_started_minigame = true
 	var player = _get_player()
 	if player:
 		player.iniciar_minigame()
 
-func notificar_player_boia_deletada():
+func _notify_player_bobber_deleted() -> void:
 	var player = _get_player()
-	if player:
-		if player.has_method("on_boia_deleted"):
-			player.on_boia_deleted()
+	if player and player.has_method("on_boia_deleted"):
+		player.on_boia_deleted()
 
-func _get_player():
+func _get_player() -> Node:
 	var player = get_tree().get_first_node_in_group("Player")
-	if not player:
-		player = get_tree().get_first_node_in_group("player")
 	return player

@@ -7,7 +7,7 @@ extends Node
 
 var character_body: CharacterBody3D
 
-func setup(body: CharacterBody3D):
+func setup(body: CharacterBody3D) -> void:
 	character_body = body
 	var project_gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 	if project_gravity:
@@ -16,13 +16,16 @@ func setup(body: CharacterBody3D):
 func handle_physics(delta: float) -> void:
 	if not character_body:
 		return
-		
+	
+	# Gravidade
 	if not character_body.is_on_floor():
 		character_body.velocity.y -= gravity * delta
 	
+	# Pulo
 	if Input.is_action_just_pressed("ui_accept") and character_body.is_on_floor():
 		character_body.velocity.y = jump_velocity
 	
+	# Movimento
 	var input_dir := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 	var direction := (character_body.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	
