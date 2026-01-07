@@ -11,7 +11,7 @@ func _ready() -> void:
 func _initialize_inventory() -> void:
 	var player = get_tree().get_first_node_in_group("Player")
 	if not player or not "inventory" in player:
-		print("ERRO: Player não encontrado ou sem inventário!")
+		print("[ERRO] Player não encontrado ou sem inventário!")
 		return
 	
 	inventory = player.inventory
